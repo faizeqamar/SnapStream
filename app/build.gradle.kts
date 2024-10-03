@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.storage.CacheResetOnProcessCanceled.enabled
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -47,6 +49,9 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    buildFeatures {
+        viewBinding = true
+    }
 }
 
 dependencies {
@@ -70,7 +75,7 @@ dependencies {
     // Kotlin Coroutines libraries for asynchronous image processing
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
-    
+
     // ViewModel and LiveData libraries for MVVM
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.livedata.ktx)
@@ -78,6 +83,7 @@ dependencies {
     // Retrofit library for network requests
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
+    implementation(libs.androidx.appcompat)
 
 
     testImplementation(libs.junit)
