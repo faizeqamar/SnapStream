@@ -1,4 +1,4 @@
-package com.snapstream.app
+package com.snapstream.app.ui.activity
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
