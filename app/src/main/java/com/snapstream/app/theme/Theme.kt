@@ -1,4 +1,4 @@
-package com.snapstream.app.ui.theme
+package com.snapstream.app.theme
 
 import android.app.Activity
 import android.os.Build

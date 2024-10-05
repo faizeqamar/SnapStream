@@ -1,4 +1,4 @@
-package com.snapstream.app.ui.repository
+package com.snapstream.app.repository
 
 data class CloudinaryResponse(
     val publicId: String,

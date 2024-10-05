@@ -12,7 +12,10 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.snapstream.app.databinding.ActivityMainBinding
-import com.snapstream.app.ui.viewmodel.CameraViewModel
+import com.snapstream.app.viewmodel.CameraViewModel
+import com.snapstream.app.viewmodel.ImageUploadViewModel
+import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.util.concurrent.Executors
 
 class MainActivity : AppCompatActivity() {
@@ -22,6 +25,7 @@ class MainActivity : AppCompatActivity() {
     private val executor = Executors.newSingleThreadExecutor()
     private var imageCapture: ImageCapture? = null
     private var captureRunnable: Runnable? = null
+    private val viewModel: ImageUploadViewModel by inject()
 
 
     companion object {
@@ -97,7 +101,7 @@ class MainActivity : AppCompatActivity() {
      * Capture images continuously at a set interval.
      */
     private fun startImageCapture() {
-        val captureInterval = 1000L // Capture every 1 second
+        val captureInterval = 10000L // Capture every 1 second
 
         captureRunnable = object : Runnable {
             override fun run() {
@@ -124,7 +128,19 @@ class MainActivity : AppCompatActivity() {
                 // Convert ImageProxy to Bitmap
                 val bitmap = imageProxy.toBitmap()
                 imageProxy.close()
+                val apiKey = "206938ce1faee7a1be38d6b0dab2488c"
+                viewModel.saveImageOrUpload(bitmap, apiKey)
 
+                // Convert Bitmap to ByteArray
+//                val byteArray = bitmapToByteArray(bitmap)
+//                val byteArray = compressBitmap(bitmap)
+//
+//                    if (byteArray != null) {
+//                    // Upload the byte array to ImgBB
+//                    uploadImageToImgBB(byteArray)
+//                } else {
+//                    Log.e(TAG, "Failed to convert bitmap to byte array")
+//                }
                 // Process the captured image
                 cameraViewModel.processCapturedImage(bitmap)
                 Log.d(TAG, "Image captured successfully!")
@@ -160,4 +176,45 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
+
+
+
+//    private fun uploadImageToImgBB(imageData: ByteArray) {
+//        val apiKey = "206938ce1faee7a1be38d6b0dab2488c"
+//        Log.d(TAG, "Uploading image of size: ${imageData.size} bytes")
+//
+//        // Prepare the byte array for upload
+//        val mediaType = "image/*".toMediaTypeOrNull()
+//        val requestBody = RequestBody.create(mediaType, imageData)
+//        val imagePart = MultipartBody.Part.createFormData("image", "image.png", requestBody)
+//
+//        // Make the API call to upload the image
+//        val call = RetrofitClient.api.uploadImage(apiKey, imagePart)
+//        call.enqueue(object : Callback<ImgBBResponse> {
+//            override fun onResponse(call: Call<ImgBBResponse>, response: Response<ImgBBResponse>) {
+//                if (response.isSuccessful) {
+//                    val imageUrl = response.body()?.data?.display_url
+//                    Log.d(TAG, "Image uploaded successfully: $imageUrl")
+//                } else {
+//                    Log.e(TAG, "Image upload failed: ${response.errorBody()?.string()}")
+//                }
+//            }
+//
+//            override fun onFailure(call: Call<ImgBBResponse>, t: Throwable) {
+//                when (t) {
+//                    is IOException -> Log.e(TAG, "Network error: ${t.message}")
+//                    else -> Log.e(TAG, "Image upload error: ${t.message}")
+//                }
+//            }
+//        })
+//    }
+//
+//    private fun compressBitmap(bitmap: Bitmap): ByteArray {
+//        val stream = ByteArrayOutputStream()
+//        // Compress the Bitmap to JPEG format with 80% quality
+//        bitmap.compress(Bitmap.CompressFormat.JPEG, 80, stream)
+//        return stream.toByteArray()
+//    }
+
 }

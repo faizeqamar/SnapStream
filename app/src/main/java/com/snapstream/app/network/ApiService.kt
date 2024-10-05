@@ -1,8 +1,8 @@
-package com.snapstream.app.ui.network
+package com.snapstream.app.network
 
-import com.snapstream.app.ui.model.ImgBBResponse
-import com.snapstream.app.ui.model.UserResponse
-import com.snapstream.app.ui.repository.CloudinaryResponse
+import com.snapstream.app.model.ImgBBResponse
+import com.snapstream.app.model.UserResponse
+import com.snapstream.app.repository.CloudinaryResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Call
@@ -15,15 +15,11 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface ApiService {
-    @GET("users/{user_id}")
-    fun getUser(
-        @Path("user_id") userId: Int
-    ): Call<UserResponse>
 
     @Multipart
-    @POST("upload")
-    fun uploadImage(
+    @POST("1/upload")
+    suspend fun uploadImage(
         @Query("key") apiKey: String,
         @Part image: MultipartBody.Part
-    ): Call<ImgBBResponse>
+    ): Response<ImgBBResponse>
 }

@@ -1,4 +1,4 @@
-package com.snapstream.app.ui.model
+package com.snapstream.app.model
 
 data class UserResponse(
     val id: Int,

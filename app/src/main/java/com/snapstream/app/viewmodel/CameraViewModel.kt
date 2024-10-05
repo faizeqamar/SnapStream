@@ -1,4 +1,4 @@
-package com.snapstream.app.ui.viewmodel
+package com.snapstream.app.viewmodel
 import android.graphics.Bitmap
 import android.util.Log
 import androidx.lifecycle.ViewModel

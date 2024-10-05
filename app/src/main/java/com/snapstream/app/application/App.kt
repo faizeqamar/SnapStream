@@ -1,13 +1,15 @@
-package com.snapstream.app.ui.application
+package com.snapstream.app.application
 
 import android.app.Application
-import com.snapstream.app.ui.di.appModule
+import com.snapstream.app.di.appModule
+import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 
 class App : Application() {
     override fun onCreate() {
         super.onCreate()
         startKoin {
+            androidContext(this@App)
             modules(appModule)
         }
     }
