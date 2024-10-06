@@ -1,9 +1,12 @@
 package com.snapstream.app.repository
 
 import android.util.Log
+import com.snapstream.app.BuildConfig
 import com.snapstream.app.database.ImageDao
 import com.snapstream.app.database.ImageEntity
 import com.snapstream.app.network.ApiService
+import com.snapstream.app.ui.activity.MainActivity
+import com.snapstream.app.ui.activity.MainActivity.Companion
 import com.snapstream.app.utils.ConnectivityObserver
 import com.snapstream.app.utils.NetworkConnectivityObserver
 import kotlinx.coroutines.Dispatchers
@@ -44,7 +47,7 @@ class ImageUploadRepository(
                 Log.d(TAG, "Image uploaded successfully")
             } else {
                 saveImageLocally(imageData)
-                Log.d(TAG, "Saved image locally due to upload failure")
+                Log.d(TAG, "Saved image locally due to upload failure $result")
             }
         } else {
             saveImageLocally(imageData)
@@ -99,7 +102,8 @@ class ImageUploadRepository(
             for (image in pendingImages) {
                 val result = uploadImage(apiKey, image.imageData)
                 if (result.isSuccess) {
-                    imageDao.updateImageStatus(image.id, true)
+//                    imageDao.updateImageStatus(image.id, true)
+                    imageDao.deleteImage(image.id)
                     Log.d(TAG, "Successfully uploaded image from Room DB with ID: ${image.id}")
                 } else {
                     Log.e(TAG, "Failed to upload image from Room DB with ID: ${image.id}")
@@ -107,7 +111,4 @@ class ImageUploadRepository(
             }
         }
     }
-
-
-
 }
