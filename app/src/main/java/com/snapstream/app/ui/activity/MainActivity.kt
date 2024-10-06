@@ -14,6 +14,7 @@ import androidx.core.content.ContextCompat
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
+import com.snapstream.app.BuildConfig
 import com.snapstream.app.databinding.ActivityMainBinding
 import com.snapstream.app.utils.ConnectivityObserver
 import com.snapstream.app.utils.NetworkConnectivityObserver
@@ -34,7 +35,7 @@ class MainActivity : AppCompatActivity() {
     private val viewModel: ImageUploadViewModel by inject()
     private val connectivityObserver: NetworkConnectivityObserver by inject()
     private var networkStatus: ConnectivityObserver.Status = ConnectivityObserver.Status.Unavailable // Default
-    private val apiKey = "206938ce1faee7a1be38d6b0dab2488c"
+    private val apiKey = BuildConfig.API_KEY
 
 
 

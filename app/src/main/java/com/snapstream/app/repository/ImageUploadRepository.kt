@@ -1,9 +1,12 @@
 package com.snapstream.app.repository
 
 import android.util.Log
+import com.snapstream.app.BuildConfig
 import com.snapstream.app.database.ImageDao
 import com.snapstream.app.database.ImageEntity
 import com.snapstream.app.network.ApiService
+import com.snapstream.app.ui.activity.MainActivity
+import com.snapstream.app.ui.activity.MainActivity.Companion
 import com.snapstream.app.utils.ConnectivityObserver
 import com.snapstream.app.utils.NetworkConnectivityObserver
 import kotlinx.coroutines.Dispatchers
@@ -38,13 +41,15 @@ class ImageUploadRepository(
      * @param imageData Image data as ByteArray to be uploaded.
      */
     suspend fun saveImageToDbOrUpload(apiKey: String, imageData: ByteArray, networkStatus: ConnectivityObserver.Status) {
+        Log.d(TAG, "Api Key: $apiKey")
+        Log.d(TAG, "Base URL: ${BuildConfig.BASE_URL}")
         if (networkStatus == ConnectivityObserver.Status.Available) {
             val result = uploadImage(apiKey, imageData)
             if (result.isSuccess) {
                 Log.d(TAG, "Image uploaded successfully")
             } else {
                 saveImageLocally(imageData)
-                Log.d(TAG, "Saved image locally due to upload failure")
+                Log.d(TAG, "Saved image locally due to upload failure $result")
             }
         } else {
             saveImageLocally(imageData)
@@ -107,7 +112,4 @@ class ImageUploadRepository(
             }
         }
     }
-
-
-
 }

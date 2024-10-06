@@ -1,10 +1,19 @@
 import org.jetbrains.kotlin.storage.CacheResetOnProcessCanceled.enabled
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.google.devtools.ksp)
 }
+
+// Load properties from local.properties
+val properties = Properties().apply {
+    load(project.rootProject.file("local.properties").inputStream())
+}
+// Extract properties
+val baseUrl = properties.getProperty("BASE_URL") ?: ""
+val apiKey = properties.getProperty("API_KEY") ?: ""
 
 android {
     namespace = "com.snapstream.app"
@@ -21,6 +30,10 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        // Add BuildConfig fields for BASE_URL and API_KEY
+        buildConfigField("String", "BASE_URL", "\"$baseUrl\"")
+        buildConfigField("String", "API_KEY", "\"$apiKey\"")
     }
 
     buildTypes {
@@ -41,6 +54,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
