@@ -5,6 +5,7 @@ import androidx.work.Configuration
 import androidx.work.WorkManager
 import com.snapstream.app.di.appModule
 import org.koin.android.ext.koin.androidContext
+import org.koin.androidx.workmanager.koin.workManagerFactory
 import org.koin.core.context.startKoin
 
 class App : Application() {
@@ -14,7 +15,5 @@ class App : Application() {
             androidContext(this@App)
             modules(appModule)
         }
-        // Initialize WorkManager
-        WorkManager.initialize(this, Configuration.Builder().build())
     }
 }
