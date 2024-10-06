@@ -1,6 +1,9 @@
+import org.jetbrains.kotlin.storage.CacheResetOnProcessCanceled.enabled
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.google.devtools.ksp)
 }
 
 android {
@@ -9,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId = "com.snapstream.app"
-        minSdk = 21
+        minSdk = 24
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -47,6 +50,9 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    buildFeatures {
+        viewBinding = true
+    }
 }
 
 dependencies {
@@ -70,7 +76,7 @@ dependencies {
     // Kotlin Coroutines libraries for asynchronous image processing
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
-    
+
     // ViewModel and LiveData libraries for MVVM
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.livedata.ktx)
@@ -78,7 +84,19 @@ dependencies {
     // Retrofit library for network requests
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
+    implementation(libs.androidx.appcompat)
+    implementation (libs.okhttp)
 
+    // Koin Dependency Injection
+    implementation(libs.koin.android)
+    implementation(libs.koin.androidx.viewmodel)
+    implementation(libs.koin.androidx.ext)
+
+    // Room Database
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.work.runtime.ktx)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
