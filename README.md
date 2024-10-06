@@ -1,6 +1,6 @@
 # SnapStream
 
-## Brief Description
+## Description
 SnapStream is an Android application that captures images using the device's camera.
 Upon opening the application, it requests camera permission and then captures an image.
 The captured image is converted into a byte array and checked for internet connectivity.
