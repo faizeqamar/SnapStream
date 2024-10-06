@@ -95,6 +95,7 @@ dependencies {
     // Room Database
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.koin.androidx.workmanager)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
 

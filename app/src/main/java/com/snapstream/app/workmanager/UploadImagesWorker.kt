@@ -2,25 +2,32 @@ package com.snapstream.app.workmanager
 
 import android.content.Context
 import android.util.Log
-import androidx.work.Worker
+import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.snapstream.app.repository.ImageUploadRepository
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 class UploadImagesWorker(
     context: Context,
-    workerParams: WorkerParameters,
-    private val repository: ImageUploadRepository // Pass your repository here
-) : Worker(context, workerParams) {
+    workerParams: WorkerParameters
+) : CoroutineWorker(context, workerParams), KoinComponent {
+
+    // Injecting the repository with Koin
+    private val repository: ImageUploadRepository by inject()
+
     private val TAG = "UploadImagesWorker"
 
-    override fun doWork(): Result {
-        Log.d(TAG, "Do Work  function called....")
+    override suspend fun doWork(): Result {
+        Log.d(TAG, "Do Work function called....")
         return try {
             val apiKey = inputData.getString("API_KEY") ?: return Result.failure()
-            runBlocking {
-                Log.d(TAG, "Starting to upload pending images...")
-                repository.uploadPendingImages(apiKey) // Call your method to upload old images
+
+            Log.d(TAG, "Starting to upload pending images...")
+            withContext(Dispatchers.IO) {
+                repository.uploadPendingImages(apiKey) // Call your method to upload images
             }
             Result.success()
         } catch (e: Exception) {
