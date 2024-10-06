@@ -41,8 +41,6 @@ class ImageUploadRepository(
      * @param imageData Image data as ByteArray to be uploaded.
      */
     suspend fun saveImageToDbOrUpload(apiKey: String, imageData: ByteArray, networkStatus: ConnectivityObserver.Status) {
-        Log.d(TAG, "Api Key: $apiKey")
-        Log.d(TAG, "Base URL: ${BuildConfig.BASE_URL}")
         if (networkStatus == ConnectivityObserver.Status.Available) {
             val result = uploadImage(apiKey, imageData)
             if (result.isSuccess) {
@@ -104,7 +102,8 @@ class ImageUploadRepository(
             for (image in pendingImages) {
                 val result = uploadImage(apiKey, image.imageData)
                 if (result.isSuccess) {
-                    imageDao.updateImageStatus(image.id, true)
+//                    imageDao.updateImageStatus(image.id, true)
+                    imageDao.deleteImage(image.id)
                     Log.d(TAG, "Successfully uploaded image from Room DB with ID: ${image.id}")
                 } else {
                     Log.e(TAG, "Failed to upload image from Room DB with ID: ${image.id}")

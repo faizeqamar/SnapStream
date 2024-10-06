@@ -24,7 +24,6 @@ class UploadImagesWorker(
         Log.d(TAG, "Do Work function called....")
         return try {
             val apiKey = inputData.getString("API_KEY") ?: return Result.failure()
-
             Log.d(TAG, "Starting to upload pending images...")
             withContext(Dispatchers.IO) {
                 repository.uploadPendingImages(apiKey) // Call your method to upload images

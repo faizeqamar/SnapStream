@@ -30,11 +30,6 @@ class ImageUploadViewModel(
         }
     }
 
-    fun uploadPendingImages(apiKey: String){
-        viewModelScope.launch {
-            repository.uploadPendingImages(apiKey)
-        }
-    }
 
     /**
      * Compresses the provided Bitmap image into a byte array in JPEG format.

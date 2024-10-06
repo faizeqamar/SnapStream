@@ -217,7 +217,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun uploadPendingImages() {
-        Log.d(TAG, "Upload Pending Images function called")
         val workRequest = OneTimeWorkRequestBuilder<UploadImagesWorker>()
             .setInputData(workDataOf("API_KEY" to apiKey))
             .build()

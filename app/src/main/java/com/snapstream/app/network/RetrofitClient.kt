@@ -7,7 +7,6 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
-//    private const val BASE_URL = "https://api.imgbb.com/"
     private const val BASE_URL = BuildConfig.BASE_URL
 
     private val okHttpClient = OkHttpClient.Builder()
