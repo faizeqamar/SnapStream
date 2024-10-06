@@ -1,8 +1,6 @@
 package com.snapstream.app.network
 
 import com.snapstream.app.model.ImgBBResponse
-import com.snapstream.app.model.UserResponse
-import com.snapstream.app.repository.CloudinaryResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Call

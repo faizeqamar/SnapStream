@@ -3,29 +3,39 @@ package com.snapstream.app.ui.activity
 import android.Manifest
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Log
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.workDataOf
 import com.snapstream.app.databinding.ActivityMainBinding
-import com.snapstream.app.viewmodel.CameraViewModel
+import com.snapstream.app.utils.ConnectivityObserver
+import com.snapstream.app.utils.NetworkConnectivityObserver
 import com.snapstream.app.viewmodel.ImageUploadViewModel
+import com.snapstream.app.workmanager.UploadImagesWorker
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
-import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.util.concurrent.Executors
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private val cameraViewModel: CameraViewModel by viewModels()
     private val executor = Executors.newSingleThreadExecutor()
     private var imageCapture: ImageCapture? = null
     private var captureRunnable: Runnable? = null
     private val viewModel: ImageUploadViewModel by inject()
+    private val connectivityObserver: NetworkConnectivityObserver by inject()
+    private var networkStatus: ConnectivityObserver.Status = ConnectivityObserver.Status.Unavailable // Default
+    private val apiKey = "206938ce1faee7a1be38d6b0dab2488c"
+
 
 
     companion object {
@@ -38,6 +48,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        checkInternetConnection()
         // Lock orientation to portrait
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         // Request camera permissions
@@ -128,21 +139,7 @@ class MainActivity : AppCompatActivity() {
                 // Convert ImageProxy to Bitmap
                 val bitmap = imageProxy.toBitmap()
                 imageProxy.close()
-                val apiKey = "206938ce1faee7a1be38d6b0dab2488c"
-                viewModel.saveImageOrUpload(bitmap, apiKey)
-
-                // Convert Bitmap to ByteArray
-//                val byteArray = bitmapToByteArray(bitmap)
-//                val byteArray = compressBitmap(bitmap)
-//
-//                    if (byteArray != null) {
-//                    // Upload the byte array to ImgBB
-//                    uploadImageToImgBB(byteArray)
-//                } else {
-//                    Log.e(TAG, "Failed to convert bitmap to byte array")
-//                }
-                // Process the captured image
-                cameraViewModel.processCapturedImage(bitmap)
+                onImageCaptured(bitmap)
                 Log.d(TAG, "Image captured successfully!")
             }
 
@@ -179,42 +176,50 @@ class MainActivity : AppCompatActivity() {
 
 
 
+    /**
+     * Monitors internet connectivity status and triggers actions based on the current state.
+     */
+    private fun checkInternetConnection() {
+        val coroutineScope = CoroutineScope(Dispatchers.Main)
+        coroutineScope.launch {
+            connectivityObserver.observe().collect { status ->
+                networkStatus = status
+                when (status) {
+                    ConnectivityObserver.Status.Available -> {
+                        Log.d(TAG, "***** Internet Connected *****")
+                        uploadPendingImages()
+                    }
 
-//    private fun uploadImageToImgBB(imageData: ByteArray) {
-//        val apiKey = "206938ce1faee7a1be38d6b0dab2488c"
-//        Log.d(TAG, "Uploading image of size: ${imageData.size} bytes")
-//
-//        // Prepare the byte array for upload
-//        val mediaType = "image/*".toMediaTypeOrNull()
-//        val requestBody = RequestBody.create(mediaType, imageData)
-//        val imagePart = MultipartBody.Part.createFormData("image", "image.png", requestBody)
-//
-//        // Make the API call to upload the image
-//        val call = RetrofitClient.api.uploadImage(apiKey, imagePart)
-//        call.enqueue(object : Callback<ImgBBResponse> {
-//            override fun onResponse(call: Call<ImgBBResponse>, response: Response<ImgBBResponse>) {
-//                if (response.isSuccessful) {
-//                    val imageUrl = response.body()?.data?.display_url
-//                    Log.d(TAG, "Image uploaded successfully: $imageUrl")
-//                } else {
-//                    Log.e(TAG, "Image upload failed: ${response.errorBody()?.string()}")
-//                }
-//            }
-//
-//            override fun onFailure(call: Call<ImgBBResponse>, t: Throwable) {
-//                when (t) {
-//                    is IOException -> Log.e(TAG, "Network error: ${t.message}")
-//                    else -> Log.e(TAG, "Image upload error: ${t.message}")
-//                }
-//            }
-//        })
-//    }
-//
-//    private fun compressBitmap(bitmap: Bitmap): ByteArray {
-//        val stream = ByteArrayOutputStream()
-//        // Compress the Bitmap to JPEG format with 80% quality
-//        bitmap.compress(Bitmap.CompressFormat.JPEG, 80, stream)
-//        return stream.toByteArray()
-//    }
+                    ConnectivityObserver.Status.Unavailable -> {
+                        Log.d(TAG, "***** Internet Disconnected *****")
+                    }
 
+                    ConnectivityObserver.Status.Losing -> {
+                        Log.d(TAG, "***** Internet Losing *****")
+                    }
+
+                    ConnectivityObserver.Status.Lost -> {
+                        Log.d(TAG, "***** Internet Lost *****")
+                    }
+                }
+            }
+        }
+    }
+
+
+
+    /**
+     * Passes the captured image to the ViewModel for upload or local storage.
+     */
+    private fun onImageCaptured(bitmap: Bitmap) {
+        viewModel.saveImageOrUpload(bitmap, apiKey, networkStatus)
+    }
+
+    private fun uploadPendingImages() {
+        Log.d(TAG, "Upload Pending Images function called")
+        val workRequest = OneTimeWorkRequestBuilder<UploadImagesWorker>()
+            .setInputData(workDataOf("API_KEY" to apiKey))
+            .build()
+        WorkManager.getInstance(this.applicationContext).enqueue(workRequest)
+    }
 }

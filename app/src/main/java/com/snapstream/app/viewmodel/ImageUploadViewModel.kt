@@ -10,34 +10,6 @@ import com.snapstream.app.utils.NetworkConnectivityObserver
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 
-//class ImageUploadViewModel(private val repository: ImageUploadRepository) : ViewModel() {
-//    val TAG = "ImageUploadViewModel"
-//    fun uploadImage(bitmap: Bitmap, apiKey: String) {
-//        viewModelScope.launch {
-//            val imageData = compressBitmap(bitmap)
-//            Log.d(TAG, "Uploading image of size: ${imageData.size} bytes")
-//
-//            val result = repository.uploadImage(apiKey, imageData)
-//            result.onSuccess { imageUrl ->
-//                Log.d(TAG, "Image uploaded successfully: $imageUrl")
-//            }.onFailure { error ->
-//                Log.e(TAG, "Image upload error: ${error.message}")
-//            }
-//        }
-//    }
-//
-//    private fun compressBitmap(bitmap: Bitmap): ByteArray {
-//        val stream = ByteArrayOutputStream()
-//        bitmap.compress(Bitmap.CompressFormat.JPEG, 80, stream)
-//        return stream.toByteArray()
-//    }
-//}
-
-
-
-
-
-
 class ImageUploadViewModel(
     private val repository: ImageUploadRepository
 ) : ViewModel() {
@@ -50,11 +22,17 @@ class ImageUploadViewModel(
      * @param bitmap The image to be uploaded, represented as a Bitmap.
      * @param apiKey The API key used for authenticating the image upload request to the server.
      */
-    fun saveImageOrUpload(bitmap: Bitmap, apiKey: String) {
+    fun saveImageOrUpload(bitmap: Bitmap, apiKey: String, networkStatus: ConnectivityObserver.Status) {
         viewModelScope.launch {
             val imageData = compressBitmap(bitmap)
             Log.d(TAG, "Handling image of size: ${imageData.size} bytes")
-            repository.saveImageToDbOrUpload(apiKey, imageData)
+            repository.saveImageToDbOrUpload(apiKey, imageData, networkStatus)
+        }
+    }
+
+    fun uploadPendingImages(apiKey: String){
+        viewModelScope.launch {
+            repository.uploadPendingImages(apiKey)
         }
     }
 
